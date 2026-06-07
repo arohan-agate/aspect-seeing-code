@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+build/
+dist/
+.mypy_cache/
+.ruff_cache/
+
+# Secrets & local scripts
+.env
+scripts/activate.local.sh
+
+# Experimental outputs — never in repo
+outputs/
+wandb/
+checkpoints/
+*.pt
+*.safetensors
+*.npy
+*.npz
+
+# Data
+data/
+images/
+activations/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+*.swp
+
+# Logs
+*.log
+*.err
+slurm-*.out

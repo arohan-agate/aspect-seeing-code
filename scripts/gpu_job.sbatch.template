@@ -1,0 +1,60 @@
+#!/bin/bash
+# Template for aspect-seeing GPU jobs. Copy, rename, and fill in the two TODOs.
+#
+#   cp scripts/gpu_job.sbatch.template scripts/run_phase1_behavioral.sbatch
+#   <edit>
+#   sbatch --account=YOUR_ACCOUNT --partition=YOUR_GPU_PARTITION \
+#       scripts/run_phase1_behavioral.sbatch
+#
+# Submit with your cluster's account and GPU partition (#SBATCH directives
+# cannot expand environment variables, so account/partition are given on the
+# command line).
+#
+# Default: 1 GPU, 8 CPU, 64G RAM, 6h. Bump for heavier phases.
+
+#SBATCH --job-name=TODO-jobname
+#SBATCH --gpus=1
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=64G
+#SBATCH --time=6:00:00
+
+set -euo pipefail
+
+echo "==> host=$(hostname)  job=${SLURM_JOB_ID:-?}  date=$(date)"
+nvidia-smi -L || echo "warning: no GPU detected"
+
+# Env setup (can't reliably `source` in sbatch; set paths directly).
+REPO_DIR="${ASPECT_REPO:?export ASPECT_REPO (see README)}"
+ASPECT_SCRATCH="${ASPECT_SCRATCH:?export ASPECT_SCRATCH (see README)}"
+ENV_PREFIX="${ASPECT_ENV:-${ASPECT_SCRATCH}/envs/aspect}"
+
+export ASPECT_SCRATCH
+export HF_HOME="${ASPECT_SCRATCH}/.cache/huggingface"
+export HF_DATASETS_CACHE="${ASPECT_SCRATCH}/.cache/huggingface/datasets"
+export TRANSFORMERS_CACHE="${ASPECT_SCRATCH}/.cache/huggingface/hub"
+export PIP_CACHE_DIR="${ASPECT_SCRATCH}/.cache/pip"
+export TMPDIR="${ASPECT_SCRATCH}/tmp"
+export WANDB_DIR="${ASPECT_SCRATCH}/wandb"
+export PATH="${ENV_PREFIX}/bin:$PATH"
+
+# HF/W&B secrets come from the submit-time environment (sbatch inherits env).
+# If they're missing, source the local-only activate.local.sh.
+if [[ -z "${HF_TOKEN:-}" || -z "${WANDB_API_KEY:-}" ]]; then
+    if [[ -f "${REPO_DIR}/scripts/activate.local.sh" ]]; then
+        # shellcheck disable=SC1091
+        source "${REPO_DIR}/scripts/activate.local.sh"
+    fi
+fi
+
+module load cuda/12.4.1 2>/dev/null || true
+
+cd "$REPO_DIR"
+
+echo "==> python: $(command -v python)"
+python -c "import torch; print('torch', torch.__version__, 'cuda_ok=', torch.cuda.is_available())"
+
+# TODO: replace with the actual run command for this job.
+#   python scripts/phase1_behavioral.py --config experiments/2026-04-23-phase1/config.yaml
+echo "==> TODO: add run command here"
+
+echo "==> done  date=$(date)"

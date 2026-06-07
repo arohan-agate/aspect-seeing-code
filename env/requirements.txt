@@ -1,0 +1,40 @@
+# Full dep list for aspect-seeing. Installed in one pip call so that torch
+# cannot be clobbered by transitive deps of sae-lens / transformer-lens.
+# scripts/bootstrap.sh adds --extra-index-url for PyTorch cu124 wheels.
+#
+# torch 2.7.1 / cu124 pairs with CUDA 12.4 and is the floor that keeps
+# sae-lens 6.x and nnsight 0.6.x resolvable. The design doc still mentions
+# torch==2.3.1; that entry is out of date.
+
+# Torch stack — exact pin to prevent any transitive dep from clobbering it.
+torch==2.7.1
+torchvision==0.22.1
+torchaudio==2.7.1
+
+# HF stack — 4.56.x is the current 4.x line; stay off transformers 5.x for now.
+transformers>=4.56,<4.60
+accelerate>=0.30
+huggingface_hub>=0.24
+safetensors>=0.4
+
+# SAE + interpretability
+sae-lens>=6.0
+nnsight>=0.3
+einops>=0.8
+
+# Vision / image gen
+open-clip-torch>=2.24
+diffusers>=0.30
+pillow>=10.2
+
+# Experiment infra
+wandb>=0.17
+hydra-core>=1.3
+pyyaml>=6.0
+tqdm>=4.66
+gdown>=5.0          # Panagopoulou dataset images live on Google Drive
+
+# Analysis
+pandas>=2.2
+scikit-learn>=1.4
+matplotlib>=3.8
